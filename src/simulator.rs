@@ -1,6 +1,3 @@
-use clap::Parser;
-use std::iter::zip;
-
 #[derive(Debug)]
 struct Voter<const N: usize> {
     prefrence: [i32; N],
@@ -27,13 +24,8 @@ impl<const N: usize> Voter<N> {
     }
 }
 
-#[derive(Parser)]
-#[command(author, version, about, long_about = None)]
-struct Args {}
-
-fn main() {
-    let args = Args::parse();
-
+pub fn run_simulation() {
+    
     // 1. Lage alle stemmegivere
     let mut voters: Vec<Voter<1>> = vec![];
     let mut candidates: Vec<Voter<1>> = vec![];
