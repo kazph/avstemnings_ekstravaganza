@@ -14,8 +14,11 @@ pub struct ElectionConfig {
     candidate_distribution: String,
 }
 
+#[derive(Debug, serde::Serialize)]
 pub struct ElectionResult {
-    winner: i32,
+    winners_prefrence: i32,
+    number_of_voters: i32,
+    prefrence_distance: i32,
 }
 
 impl<const N: usize> Voter<N> {
@@ -49,16 +52,27 @@ fn str_to_ints(text: String) -> Vec<i32> {
         .collect();
 }
 
-pub fn run_simulation(config: ElectionConfig) {
+fn max_element_index(list: &Vec<i32>) -> (usize, i32) {
+    let mut max = (0, i32::MIN);
+
+    for (idx, elem) in list.iter().enumerate() {
+        if *elem > max.1 {
+            max = (idx, *elem)
+        }
+    }
+
+    return max;
+}
+
+pub fn run_simulation(config: ElectionConfig) -> ElectionResult {
     // 1. Lage alle stemmegivere
     let mut voters: Vec<Voter<1>> = vec![];
     let mut candidates: Vec<Voter<1>> = vec![];
-    
+
     let voter_dist = str_to_ints(config.voter_distribution);
     let candidate_dist = str_to_ints(config.candidate_distribution);
 
     for (prefrence, num_voters) in voter_dist.iter().enumerate() {
-
         for _ in 0..*num_voters {
             voters.push(Voter::new([prefrence.try_into().unwrap()]))
         }
@@ -66,7 +80,6 @@ pub fn run_simulation(config: ElectionConfig) {
 
     // 2. Sette opp kandidater
     for (prefrence, num_candidates) in candidate_dist.iter().enumerate() {
-
         for _ in 0..*num_candidates {
             candidates.push(Voter::new([prefrence.try_into().unwrap()]))
         }
@@ -90,5 +103,17 @@ pub fn run_simulation(config: ElectionConfig) {
         candidate_result[vote] += 1;
     }
 
-    println!("{:#?}", candidate_result)
+    let winner = max_element_index(&candidate_result);
+
+    println!("{:#?}", candidate_result);
+
+    ElectionResult {
+        winners_prefrence: candidates[winner.0].prefrence[0],
+        number_of_voters: voters.len().try_into().unwrap(),
+        prefrence_distance: voters
+            .iter()
+            .map(|v| v.prefrence[0])
+            .map(|p| p.pow(2))
+            .sum(),
+    }
 }
