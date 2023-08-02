@@ -1,6 +1,21 @@
+use std::iter::zip;
+
 #[derive(Debug)]
 struct Voter<const N: usize> {
     prefrence: [i32; N],
+}
+
+#[derive(Debug, serde::Deserialize)]
+pub struct ElectionConfig {
+    id: String,
+    name: String,
+    width_of_spectre: i32,
+    voter_distribution: String,
+    candidate_distribution: String,
+}
+
+pub struct ElectionResult {
+    winner: i32,
 }
 
 impl<const N: usize> Voter<N> {
@@ -24,8 +39,17 @@ impl<const N: usize> Voter<N> {
     }
 }
 
-pub fn run_simulation() {
-    
+fn str_to_ints(text: String) -> Vec<i32> {
+    return text
+        .split(" ")
+        .into_iter()
+        .map(|s| s.trim())
+        .filter(|s| s.is_empty())
+        .map(|s| s.parse().unwrap())
+        .collect();
+}
+
+pub fn run_simulation(config: ElectionConfig) {
     // 1. Lage alle stemmegivere
     let mut voters: Vec<Voter<1>> = vec![];
     let mut candidates: Vec<Voter<1>> = vec![];
