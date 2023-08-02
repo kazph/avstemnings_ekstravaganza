@@ -44,7 +44,7 @@ fn str_to_ints(text: String) -> Vec<i32> {
         .split(" ")
         .into_iter()
         .map(|s| s.trim())
-        .filter(|s| s.is_empty())
+        .filter(|s| !s.is_empty())
         .map(|s| s.parse().unwrap())
         .collect();
 }
@@ -53,19 +53,24 @@ pub fn run_simulation(config: ElectionConfig) {
     // 1. Lage alle stemmegivere
     let mut voters: Vec<Voter<1>> = vec![];
     let mut candidates: Vec<Voter<1>> = vec![];
+    
+    let voter_dist = str_to_ints(config.voter_distribution);
+    let candidate_dist = str_to_ints(config.candidate_distribution);
 
-    for i in 0..100 {
-        voters.push(Voter::new([i]))
+    for (prefrence, num_voters) in voter_dist.iter().enumerate() {
+
+        for _ in 0..*num_voters {
+            voters.push(Voter::new([prefrence.try_into().unwrap()]))
+        }
     }
-    candidates.clear();
 
     // 2. Sette opp kandidater
-    candidates.push(Voter::new([1]));
-    candidates.push(Voter::new([49]));
-    candidates.push(Voter::new([50]));
-    candidates.push(Voter::new([51]));
-    candidates.push(Voter::new([95]));
-    candidates.push(Voter::new([100]));
+    for (prefrence, num_candidates) in candidate_dist.iter().enumerate() {
+
+        for _ in 0..*num_candidates {
+            candidates.push(Voter::new([prefrence.try_into().unwrap()]))
+        }
+    }
 
     // 3. Gjennomføre valget
 
